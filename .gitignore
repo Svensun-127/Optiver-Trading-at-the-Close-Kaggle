@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+
+# Data files (keep only the originals)
+data/
+
+# Outputs
+outputs/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Kaggle
+optiver2023/
+example_test_files/
+public_timeseries_testing_util.py
+*.csv
+!requirements.txt
+
+# Environment
+.env

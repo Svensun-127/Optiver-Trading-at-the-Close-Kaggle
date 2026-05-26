@@ -49,6 +49,7 @@ catboost_info/
 submission/lgb_model.txt
 submission/lgb_model.pkl
 submission/wheels/
+submission/wheels.zip
 
 # Test scripts
 test_ccx_auth.py

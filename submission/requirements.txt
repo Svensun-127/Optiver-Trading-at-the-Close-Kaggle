@@ -1,4 +1,6 @@
-pandas
 numpy
+pandas
 lightgbm
 joblib
+scikit-learn
+scipy

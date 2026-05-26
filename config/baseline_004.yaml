@@ -1,0 +1,138 @@
+cv:
+  date_col: date_id
+  n_splits: 5
+  purge_gap: 1
+data:
+  train_path: data/train.csv
+experiment:
+  created: '2026-05-24'
+  description: 'Phase 4 HPO best — MAE 5.5493 from 48-trial Optuna search (hpo_001).
+    Best trial: 12'
+  name: baseline_004
+features:
+  categorical:
+  - stock_id
+  conditional:
+  - far_price
+  - near_price
+  derived:
+  - bid_ask_spread
+  - spread_pct
+  - wap_ref_diff
+  - price_momentum
+  - imbalance_ratio
+  - size_imbalance
+  - depth_total
+  - far_price_avail
+  - near_price_avail
+  - far_near_spread
+  - far_near_mean
+  global:
+  - target_mean_median_3d
+  - target_mean_std_3d
+  - target_mean_ptp_3d
+  - target_mean_median_5d
+  - target_mean_std_5d
+  - target_mean_ptp_5d
+  - target_mean_skew_5d
+  - target_mean_kurt_5d
+  - target_mean_median_10d
+  - target_mean_std_10d
+  - target_mean_ptp_10d
+  - target_mean_skew_10d
+  - target_mean_kurt_10d
+  - wap_mean_median_5d
+  - wap_mean_std_5d
+  - wap_mean_median_10d
+  - wap_mean_std_10d
+  - imbalance_size_mean_median_5d
+  - imbalance_size_mean_std_5d
+  - imbalance_size_mean_median_10d
+  - imbalance_size_mean_std_10d
+  - rel_strength
+  - rel_strength_z_5d
+  - rel_strength_z_10d
+  - rel_strength_cum5d
+  - target_mean_lag1
+  - target_mean_diff1
+  - wap_mean_lag1
+  - wap_mean_ret1
+  - market_index
+  - stock_dev_index
+  - stock_dev_index_pct
+  micro:
+  - tri_flow
+  - tri_price
+  - tri_match
+  - tri_ref_bid
+  - tri_exec
+  - tri_ref_ask
+  - tri_depth
+  - tri_term
+  - micro_price
+  - mid_price
+  - price_spread
+  - market_urgency
+  - wap_micro_diff
+  - book_slope
+  - signed_imb
+  - order_intensity
+  - price_mean
+  - price_std
+  - price_skew
+  - price_kurt
+  - size_mean
+  - size_std
+  - size_skew
+  - size_kurt
+  - far_price_nan
+  - near_price_nan
+  - far_near_spread_nan
+  - far_to_mid
+  - near_to_mid
+  - volume_intensity
+  - imb_flow
+  - log_quote_imb
+  - bid_ask_size_ratio
+  - matched_depth_ratio
+  numerical:
+  - seconds_in_bucket
+  - imbalance_size
+  - imbalance_buy_sell_flag
+  - reference_price
+  - matched_size
+  - bid_price
+  - bid_size
+  - ask_price
+  - ask_size
+  - wap
+model:
+  early_stopping_rounds: 50
+  eval_metric: mae
+  params:
+    bagging_fraction: 0.5032908725895765
+    bagging_freq: 5
+    boosting_type: gbdt
+    feature_fraction: 0.6227948998644468
+    lambda_l1: 9.946125908206193
+    lambda_l2: 4.960413121697143
+    learning_rate: 0.03979663152717189
+    max_depth: -1
+    metric: mae
+    min_child_samples: 15
+    n_estimators: 1000
+    n_jobs: -1
+    num_leaves: 112
+    objective: regression
+    random_state: 42
+    verbosity: -1
+  type: lightgbm
+output:
+  dir: outputs/baseline_004
+  save_feature_list: true
+  save_metrics: true
+  save_oof: true
+preprocessing:
+  drop_corrupted_rows: true
+  drop_missing_target: true
+  target_winsorization: 30

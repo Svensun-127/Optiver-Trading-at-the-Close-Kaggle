@@ -1,0 +1,144 @@
+# catboost_baseline_001 — CatBoost baseline on the same 90 features as baseline_004.
+#
+# Uses identical CV folds (PurgedGroupTimeSeriesSplit, 5-fold, purge_gap=1)
+# so OOF predictions are directly comparable for ensembling.
+#
+# Parameters chosen as sensible CatBoost defaults — not HPO-tuned.
+
+experiment:
+  name: "catboost_baseline_001"
+  description: >
+    CatBoost baseline on the 90-feature matrix (24 base + 34 micro + 32 global).
+    Same CV scheme as LightGBM baselines for direct OOF comparability.
+    Default parameters — not tuned.
+  created: "2026-05-24"
+
+data:
+  train_path: "data/train.csv"
+
+preprocessing:
+  target_winsorization: 30
+  drop_missing_target: true
+  drop_corrupted_rows: true
+
+cv:
+  n_splits: 5
+  purge_gap: 1
+  date_col: "date_id"
+
+features:
+  categorical:
+    - stock_id
+  numerical:
+    - seconds_in_bucket
+    - imbalance_size
+    - imbalance_buy_sell_flag
+    - reference_price
+    - matched_size
+    - bid_price
+    - bid_size
+    - ask_price
+    - ask_size
+    - wap
+  conditional:
+    - far_price
+    - near_price
+  derived:
+    - bid_ask_spread
+    - spread_pct
+    - wap_ref_diff
+    - price_momentum
+    - imbalance_ratio
+    - size_imbalance
+    - depth_total
+    - far_price_avail
+    - near_price_avail
+    - far_near_spread
+    - far_near_mean
+  micro:
+    - tri_flow
+    - tri_price
+    - tri_match
+    - tri_ref_bid
+    - tri_exec
+    - tri_ref_ask
+    - tri_depth
+    - tri_term
+    - micro_price
+    - mid_price
+    - price_spread
+    - market_urgency
+    - wap_micro_diff
+    - book_slope
+    - signed_imb
+    - order_intensity
+    - price_mean
+    - price_std
+    - price_skew
+    - price_kurt
+    - size_mean
+    - size_std
+    - size_skew
+    - size_kurt
+    - far_price_nan
+    - near_price_nan
+    - far_near_spread_nan
+    - far_to_mid
+    - near_to_mid
+    - volume_intensity
+    - imb_flow
+    - log_quote_imb
+    - bid_ask_size_ratio
+    - matched_depth_ratio
+  global:
+    - target_mean_median_3d
+    - target_mean_std_3d
+    - target_mean_ptp_3d
+    - target_mean_median_5d
+    - target_mean_std_5d
+    - target_mean_ptp_5d
+    - target_mean_skew_5d
+    - target_mean_kurt_5d
+    - target_mean_median_10d
+    - target_mean_std_10d
+    - target_mean_ptp_10d
+    - target_mean_skew_10d
+    - target_mean_kurt_10d
+    - wap_mean_median_5d
+    - wap_mean_std_5d
+    - wap_mean_median_10d
+    - wap_mean_std_10d
+    - imbalance_size_mean_median_5d
+    - imbalance_size_mean_std_5d
+    - imbalance_size_mean_median_10d
+    - imbalance_size_mean_std_10d
+    - rel_strength
+    - rel_strength_z_5d
+    - rel_strength_z_10d
+    - rel_strength_cum5d
+    - target_mean_lag1
+    - target_mean_diff1
+    - wap_mean_lag1
+    - wap_mean_ret1
+    - market_index
+    - stock_dev_index
+    - stock_dev_index_pct
+
+model:
+  type: "catboost"
+  params:
+    iterations: 1000
+    learning_rate: 0.05
+    depth: 6
+    l2_leaf_reg: 3.0
+    random_seed: 42
+    thread_count: -1
+    verbose: 100
+  early_stopping_rounds: 50
+  eval_metric: "MAE"
+
+output:
+  dir: "outputs/catboost_baseline_001"
+  save_oof: true
+  save_metrics: true
+  save_feature_list: true

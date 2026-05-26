@@ -1,0 +1,93 @@
+# baseline_001 — First LightGBM baseline for Optiver Trading at the Close.
+#
+# This config captures every tunable decision made in Step 3 so the experiment
+# is fully reproducible.  Changes between runs should be tracked via new config
+# files (baseline_002.yaml, etc.), not by editing this one in-place.
+
+# ── Experiment metadata ──────────────────────────────────────────────────────
+experiment:
+  name: "baseline_001"
+  description: >
+    LightGBM baseline using raw features + simple derived financial features.
+    Target winsorized at ±30.  Purged walk-forward CV (5 folds, purge_gap=1).
+  created: "2026-05-21"
+
+# ── Data ─────────────────────────────────────────────────────────────────────
+data:
+  train_path: "data/train.csv"
+
+# ── Preprocessing ────────────────────────────────────────────────────────────
+preprocessing:
+  target_winsorization: 30   # symmetric clipping bound (±30)
+  drop_missing_target: true  # 88 rows with NaN target
+  drop_corrupted_rows: true  # 220 rows with multi-column gaps
+
+# ── Cross-validation ─────────────────────────────────────────────────────────
+cv:
+  n_splits: 5
+  purge_gap: 1
+  date_col: "date_id"
+
+# ── Features ─────────────────────────────────────────────────────────────────
+# See src/features/base_features.py for the implementation and financial
+# rationale behind each derived feature.
+features:
+  categorical:
+    - stock_id
+  numerical:
+    - seconds_in_bucket
+    - imbalance_size
+    - imbalance_buy_sell_flag
+    - reference_price
+    - matched_size
+    - bid_price
+    - bid_size
+    - ask_price
+    - ask_size
+    - wap
+  conditional:
+    - far_price      # only populated when seconds_in_bucket >= 300
+    - near_price     # only populated when seconds_in_bucket >= 300
+  derived:
+    - bid_ask_spread
+    - spread_pct
+    - wap_ref_diff
+    - price_momentum
+    - imbalance_ratio
+    - size_imbalance
+    - depth_total
+    - far_price_avail
+    - near_price_avail
+    - far_near_spread
+    - far_near_mean
+
+# ── Model ────────────────────────────────────────────────────────────────────
+model:
+  type: "lightgbm"
+  params:
+    objective: "regression"
+    metric: "mae"
+    boosting_type: "gbdt"
+    n_estimators: 1000
+    learning_rate: 0.05
+    num_leaves: 128
+    max_depth: -1            # unlimited — controlled by num_leaves
+    min_data_in_leaf: 100    # regularisation against noise on small leaf sizes
+    feature_fraction: 0.7    # column subsampling per tree
+    bagging_fraction: 0.7    # row subsampling per tree
+    bagging_freq: 1
+    lambda_l1: 0.1           # L1 regularisation
+    lambda_l2: 1.0           # L2 regularisation
+    random_state: 42
+    n_jobs: -1
+    verbosity: -1
+
+  early_stopping_rounds: 50
+  eval_metric: "mae"
+
+# ── Output ───────────────────────────────────────────────────────────────────
+output:
+  dir: "outputs/baseline_001"
+  save_oof: true            # out-of-fold predictions
+  save_metrics: true        # per-fold and overall MAE
+  save_feature_list: true   # list of feature names used

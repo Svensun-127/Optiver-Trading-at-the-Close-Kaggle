@@ -31,3 +31,26 @@ public_timeseries_testing_util.py
 
 # Environment
 .env
+
+# Credentials
+kaggle.json
+
+# Claude
+.claude/
+MEMORY0.md
+.config/
+
+# Logs & temp
+logs/
+catboost_info/
+*.tar.gz
+
+# Large model / wheels
+submission/lgb_model.txt
+submission/lgb_model.pkl
+submission/wheels/
+
+# Test scripts
+test_ccx_auth.py
+test_ccx_resp.py
+_submit.py

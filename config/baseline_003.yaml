@@ -1,0 +1,171 @@
+# baseline_003 — Phase 3 global/stock-level aggregation features added.
+#
+# Builds on baseline_002 by adding 32 stock-level aggregation features from
+# src/features/global_features.py.  Total feature count: 90
+# (24 base + 34 micro + 32 global).
+
+# ── Experiment metadata ──────────────────────────────────────────────────────
+experiment:
+  name: "baseline_003"
+  description: >
+    baseline_002 + 32 stock-level aggregation features (historical rolling
+    statistics, market relative strength, lag features, synthetic index).
+    Two-level compute: aggregate to (stock_id, date_id) → rolling/lag → merge
+    back to row-level.  Strict temporal safety via shift(1).rolling().
+    Auto-downcast float64→float32 to keep memory manageable.
+  created: "2026-05-21"
+
+# ── Data ─────────────────────────────────────────────────────────────────────
+data:
+  train_path: "data/train.csv"
+
+# ── Preprocessing ────────────────────────────────────────────────────────────
+preprocessing:
+  target_winsorization: 30
+  drop_missing_target: true
+  drop_corrupted_rows: true
+
+# ── Cross-validation ─────────────────────────────────────────────────────────
+cv:
+  n_splits: 5
+  purge_gap: 1
+  date_col: "date_id"
+
+# ── Features ─────────────────────────────────────────────────────────────────
+features:
+  categorical:
+    - stock_id
+  numerical:
+    - seconds_in_bucket
+    - imbalance_size
+    - imbalance_buy_sell_flag
+    - reference_price
+    - matched_size
+    - bid_price
+    - bid_size
+    - ask_price
+    - ask_size
+    - wap
+  conditional:
+    - far_price
+    - near_price
+  derived:
+    - bid_ask_spread
+    - spread_pct
+    - wap_ref_diff
+    - price_momentum
+    - imbalance_ratio
+    - size_imbalance
+    - depth_total
+    - far_price_avail
+    - near_price_avail
+    - far_near_spread
+    - far_near_mean
+  micro:
+    # Triplet Imbalance (8)
+    - tri_flow
+    - tri_price
+    - tri_match
+    - tri_ref_bid
+    - tri_exec
+    - tri_ref_ask
+    - tri_depth
+    - tri_term
+    # Price / Depth (8)
+    - micro_price
+    - mid_price
+    - price_spread
+    - market_urgency
+    - wap_micro_diff
+    - book_slope
+    - signed_imb
+    - order_intensity
+    # Aggregate Statistics (8)
+    - price_mean
+    - price_std
+    - price_skew
+    - price_kurt
+    - size_mean
+    - size_std
+    - size_skew
+    - size_kurt
+    # Far / Near Enhanced (5)
+    - far_price_nan
+    - near_price_nan
+    - far_near_spread_nan
+    - far_to_mid
+    - near_to_mid
+    # Volume / Flow (5)
+    - volume_intensity
+    - imb_flow
+    - log_quote_imb
+    - bid_ask_size_ratio
+    - matched_depth_ratio
+  global:
+    # Group 1: Stock Historical Rolling — target_mean (21)
+    - target_mean_median_3d
+    - target_mean_std_3d
+    - target_mean_ptp_3d
+    - target_mean_median_5d
+    - target_mean_std_5d
+    - target_mean_ptp_5d
+    - target_mean_skew_5d
+    - target_mean_kurt_5d
+    - target_mean_median_10d
+    - target_mean_std_10d
+    - target_mean_ptp_10d
+    - target_mean_skew_10d
+    - target_mean_kurt_10d
+    - wap_mean_median_5d
+    - wap_mean_std_5d
+    - wap_mean_median_10d
+    - wap_mean_std_10d
+    - imbalance_size_mean_median_5d
+    - imbalance_size_mean_std_5d
+    - imbalance_size_mean_median_10d
+    - imbalance_size_mean_std_10d
+    # Group 2: Market Relative Strength (4)
+    - rel_strength
+    - rel_strength_z_5d
+    - rel_strength_z_10d
+    - rel_strength_cum5d
+    # Group 3: Lag Features (4)
+    - target_mean_lag1
+    - target_mean_diff1
+    - wap_mean_lag1
+    - wap_mean_ret1
+    # Group 4: Synthetic Index (3)
+    - market_index
+    - stock_dev_index
+    - stock_dev_index_pct
+
+# ── Model ────────────────────────────────────────────────────────────────────
+model:
+  type: "lightgbm"
+  params:
+    objective: "regression"
+    metric: "mae"
+    boosting_type: "gbdt"
+    n_estimators: 1000
+    learning_rate: 0.05
+    num_leaves: 128
+    max_depth: -1
+    min_data_in_leaf: 100
+    feature_fraction: 0.7
+    bagging_fraction: 0.7
+    bagging_freq: 1
+    lambda_l1: 0.1
+    lambda_l2: 1.0
+    random_state: 42
+    n_jobs: -1
+    verbosity: -1
+
+  early_stopping_rounds: 50
+  eval_metric: "mae"
+
+# ── Output ───────────────────────────────────────────────────────────────────
+output:
+  dir: "outputs/baseline_003"
+  save_oof: true
+  save_metrics: true
+  save_feature_list: true

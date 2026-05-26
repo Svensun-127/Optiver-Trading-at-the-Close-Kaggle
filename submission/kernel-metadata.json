@@ -1,0 +1,12 @@
+{
+  "id": "eliansun127/optiver-trading-at-the-close-submission",
+  "title": "Optiver Trading at the Close - Final Submission",
+  "code_file": "kaggle_notebook.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": false,
+  "enable_gpu": false,
+  "enable_internet": false,
+  "dataset_sources": ["eliansun127/optiver-trading-at-the-close-model"],
+  "competition_sources": ["optiver-trading-at-the-close"]
+}

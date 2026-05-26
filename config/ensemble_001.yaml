@@ -1,0 +1,43 @@
+# ensemble_001 — Weighted average of baseline_003 and baseline_004 OOF predictions
+#
+# Motivation: baseline_003 and baseline_004 are both LightGBM models on the same
+# 90-feature matrix, differing only in hyperparameters.  Their OOF predictions
+# are highly correlated (r=0.9835), so ensemble gains are small (≈0.002 MAE).
+# The 70/30 weight reflects baseline_004's superior per-fold performance.
+
+experiment:
+  name: "ensemble_001"
+  description: >
+    Weighted average ensemble of baseline_003 (30%) and baseline_004 (70%)
+    LightGBM OOF predictions.  Both models share the same 90 features;
+    baseline_004 uses Optuna HPO-tuned hyperparameters (n_leaves=112,
+    lr=0.04, strong L1/L2 regularization).
+  created: "2026-05-24"
+
+ensemble:
+  method: "weighted_average"
+  weights:
+    baseline_003: 0.30
+    baseline_004: 0.70
+  note: >
+    Simple (50/50) average was slightly worse than baseline_004 alone (MAE
+    5.6988 vs 5.6985).  Best weight found by grid search (0.30–0.75, step
+    0.05) on OOF validation rows.  Improvements are marginal because the
+    two models' predictions are correlated at r=0.9835 — they make very
+    similar errors, so averaging provides little diversification benefit.
+
+inputs:
+  - outputs/baseline_003/oof.csv
+  - outputs/baseline_004/oof.csv
+
+results:
+  baseline_003_mae: 5.7175
+  baseline_004_mae: 5.6985
+  ensemble_001_mae: 5.6965
+  improvement_vs_best_single: 0.0021
+  prediction_correlation: 0.9835
+
+output:
+  dir: "outputs/ensemble_001"
+  oof_csv: "outputs/ensemble_001/oof.csv"
+  submission_csv: "outputs/ensemble_001/submission.csv"
